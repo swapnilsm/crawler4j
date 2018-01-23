@@ -3,23 +3,39 @@ properties([
         pollSCM('H/2 * * * *')
     ])
 ])
-podTemplate(
-    label: 'sandi-metz-enforcer-pod', 
-    containers: [
-        containerTemplate(
-            name: 'sandi-metz-enforcer-container', 
-            image: 'registry2.swarm.devfactory.com/codenation/sandimetz-enforcer:v1.0.2', 
-            ttyEnabled: true, 
-          command: 'cat'
-        )
-]) {
-        node('sandi-metz-enforcer-pod') {
-            stage('Checks') {
+
+pipeline {
+    agent none
+    options { 
+        skipDefaultCheckout()
+    }
+    stages {
+        stage('Run checks') {
+            agent {
+                kubernetes {
+                    label 'sandi-metz-enforcer-pod'
+                    containerTemplate {
+                        name 'sandi-metz-enforcer-container'
+                        image 'registry2.swarm.devfactory.com/codenation/sandimetz-enforcer:v1.0.2'
+                        ttyEnabled true
+                        command 'cat'
+                    }
+                }
+            }
+            when {
+                beforeAgent true
+                expression { env.BRANCH_NAME ==~ /(PR-\d+)/ && env.CHANGE_TARGET ==~ /(master|develop)/ }
+            }
+            steps {
                 container('sandi-metz-enforcer-container') {
-                    def repositoryUrl = scm.getUserRemoteConfigs()[0].getUrl()
-                    echo "Validating rules on ${repositoryUrl}:${env.BRANCH_NAME}"
-                    sh "REPO_URL=${repositoryUrl} BRANCH=${env.BRANCH_NAME} bash sandimetz.enforcer.sh"
+                    script {
+                        def repositoryUrl = scm.getUserRemoteConfigs()[0].getUrl()
+                        echo "Validating rules on ${repositoryUrl}:${env.BRANCH_NAME}"
+                        env.getEnvironment().each { name, value -> println "Name: $name -> Value $value" }
+                        sh "REPO_URL=${repositoryUrl} BRANCH=${env.CHANGE_BRANCH} bash sandimetz.enforcer.sh"
+                    }
                 }
             }
         }
     }
+}
