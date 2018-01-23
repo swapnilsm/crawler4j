@@ -1,5 +1,5 @@
 properties([
-    pipelineTriggers([scm('*/2 * * * *')])
+    pipelineTriggers([scm('H/2 * * * *')])
 ])
 podTemplate(
     label: 'sandi-metz-enforcer-pod', 
