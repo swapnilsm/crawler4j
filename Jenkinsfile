@@ -1,13 +1,10 @@
-properties([
-    pipelineTriggers([
-        pollSCM('H/2 * * * *')
-    ])
-])
-
 pipeline {
     agent none
     options { 
         skipDefaultCheckout()
+    }
+    triggers {
+        pollSCM('H/2 * * * *')
     }
     stages {
         stage('Run checks') {
