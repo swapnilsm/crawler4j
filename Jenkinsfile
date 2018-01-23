@@ -11,8 +11,7 @@ podTemplate(
         node('sandi-metz-enforcer-pod') {
             stage('Checks') {
                 container('sandi-metz-enforcer-container') {
-                    checkout scm
-                    def repositoryUrl = sh(returnStdout: true, script: "git config --get remote.origin.url").trim()
+                    def repositoryUrl = scm.getUserRemoteConfigs()[0].getUrl()
                     echo "Validating rules on ${repositoryUrl}:${env.BRANCH_NAME}"
                     sh "REPO_URL=${repositoryUrl} BRANCH=${env.BRANCH_NAME} bash sandimetz.enforcer.sh"
                 }
