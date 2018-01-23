@@ -37,11 +37,30 @@ pipeline {
                             sh "exit 1"
                             githubNotify status: "SUCCESS", description:"Sandi Metz's rules check passed" 
                         } catch (exc) {
-                            githubNotify status: "FAILURE", description:"Sandi Metz's rules check failed" 
+                            // githubNotify status: "FAILURE", description:"Sandi Metz's rules check failed" 
+                            
                         }
                     }
                 }
             }
+        }
+    }
+    post {
+        failure {
+            pullRequest.createStatus(
+                status: 'failure',
+                context: 'sandi-metz-2',
+                description: 'All tests are failing'//,
+                //targetUrl: "${JOB_URL}/testResults"
+            )
+        }
+        success {
+            pullRequest.createStatus(
+                status: 'success',
+                context: 'sandi-metz-2',
+                description: 'All tests are passing'//,
+                //targetUrl: "${JOB_URL}/testResults"
+            )
         }
     }
 }
