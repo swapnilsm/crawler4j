@@ -47,20 +47,10 @@ pipeline {
     }
     post {
         failure {
-            pullRequest.createStatus(
-                status: 'failure',
-                context: 'sandi-metz-2',
-                description: 'All tests are failing'//,
-                //targetUrl: "${JOB_URL}/testResults"
-            )
+            githubNotify status: "FAILURE", description:"Sandi Metz's rules checks failed", context: "sandi-metz-2"
         }
         success {
-            pullRequest.createStatus(
-                status: 'success',
-                context: 'sandi-metz-2',
-                description: 'All tests are passing'//,
-                //targetUrl: "${JOB_URL}/testResults"
-            )
+            githubNotify status: "SUCCESS", description:"Sandi Metz's rules checks passed", context: "sandi-metz-2"
         }
     }
 }
