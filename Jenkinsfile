@@ -1,3 +1,6 @@
+properties([
+    pipelineTriggers([scm('*/2 * * * *')])
+])
 podTemplate(
     label: 'sandi-metz-enforcer-pod', 
     containers: [
